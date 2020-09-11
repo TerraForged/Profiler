@@ -21,6 +21,7 @@ public class ProfilerFabric implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        LOG.info("Setting up chunk-gen profiler");
         Profiler.attachLogger(LOG::info);
     }
 
