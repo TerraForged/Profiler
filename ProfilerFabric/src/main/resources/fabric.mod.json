@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "profiler",
+  "version": "${version}",
+  "name": "ChunkProfiler",
+  "description": "A chunk generation profiler",
+  "authors": [ "dags"],
+  "contact": {
+    "homepage": "https://fabricmc.net/",
+    "sources": "https://github.com/FabricMC/fabric-example-mod"
+  },
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.terraforged.profiler.ProfilerFabric"
+    ]
+  },
+  "mixins": [
+    "mixin.profiler.json"
+  ],
+  "suggests": {
+    "flamingo": "*"
+  }
+}

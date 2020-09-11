@@ -1,0 +1,55 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven { url = "https://maven.fabricmc.net/" }
+        maven { url "http://repo.spongepowered.org/maven" }
+    }
+    dependencies {
+        classpath group: "net.fabricmc", name: "fabric-loom", version: "0.4-SNAPSHOT", changing: true
+    }
+}
+
+apply plugin: "java"
+apply plugin: "fabric-loom"
+
+version = "${mc_version}-${version}"
+sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
+
+configurations {
+    lib
+    compile.extendsFrom lib
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.mc_version}"
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    lib(project(":Profiler"))
+}
+
+processResources {
+    inputs.property "version", project.version
+    from(sourceSets.main.resources.srcDirs) {
+        include "fabric.mod.json"
+        expand "version": rootProject.version
+    }
+    from(sourceSets.main.resources.srcDirs) {
+        exclude "fabric.mod.json"
+    }
+}
+
+task collectLibs(type: Copy) {
+    dependsOn(dependsOn: subprojects.tasks["jar"])
+    from { configurations.lib.collect { it.isDirectory() ? it : zipTree(it) } }
+    into("build/classes/java/main")
+    duplicatesStrategy = "EXCLUDE"
+}
+
+classes {
+    dependsOn(collectLibs)
+}
+
+jar {
+    from "LICENSE"
+}

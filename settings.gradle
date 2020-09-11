@@ -1,0 +1,3 @@
+include ":Profiler"
+include ":ProfilerForge"
+include ":ProfilerFabric"

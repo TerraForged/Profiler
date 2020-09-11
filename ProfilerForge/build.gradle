@@ -1,0 +1,88 @@
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+        maven { url "http://repo.spongepowered.org/maven" }
+        maven { url "https://files.minecraftforge.net/maven" }
+    }
+    dependencies {
+        classpath group: "org.spongepowered", name: "mixingradle", version: "0.7-SNAPSHOT", changing: true
+        classpath group: "net.minecraftforge.gradle", name: "ForgeGradle", version: "3.+", changing: true
+    }
+}
+
+apply plugin: "java"
+apply plugin: "eclipse"
+apply plugin: "net.minecraftforge.gradle"
+apply plugin: "org.spongepowered.mixin"
+
+version = "${mc_version}-${version}"
+sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
+
+configurations {
+    lib
+    compile.extendsFrom lib
+}
+
+repositories {
+    jcenter()
+    mavenCentral()
+    maven { url "https://www.dogforce-games.com/maven/" }
+}
+
+dependencies {
+    minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
+    lib(project(":Profiler"))
+}
+
+mixin {
+    add sourceSets.main, "mixin.profiler.refmap.json"
+}
+
+minecraft {
+    mappings channel: mcp_channel, version: mcp_version
+    accessTransformer = file("src/main/resources/META-INF/transformers.cfg")
+    runs {
+        client {
+            workingDirectory project.file("run/client")
+            property "forge.logging.markers", "SCAN,REGISTRIES,REGISTRYDUMP"
+            property "forge.logging.console.level", "debug"
+            jvmArgs "-Xmx8G", "-Xms6G"
+            arg "-mixin.config=mixin.profiler.json"
+            mods {
+                profiler {
+                    source sourceSets.main
+                }
+            }
+        }
+        server {
+            workingDirectory project.file("run/server")
+            property "forge.logging.markers", "SCAN,REGISTRIES,REGISTRYDUMP"
+            property "forge.logging.console.level", "debug"
+            jvmArgs "-Xmx8G", "-Xms6G"
+            arg "-mixin.config=mixin.profiler.json"
+            mods {
+                profiler {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+task collectLibs(type: Copy) {
+    dependsOn(dependsOn: subprojects.tasks["jar"])
+    from { configurations.lib.collect { it.isDirectory() ? it : zipTree(it) } }
+    into("build/classes/java/main")
+    duplicatesStrategy = "EXCLUDE"
+}
+
+classes {
+    dependsOn(collectLibs)
+}
+
+processResources {
+    filesMatching("**/mods.toml") {
+        expand("version": rootProject.version, "mc_version": mc_version)
+    }
+}
