@@ -25,7 +25,7 @@ public abstract class MixinChunkStatus {
     @Shadow
     public abstract String getName();
     
-    private final Timer timer = Timer.of(this::getName);
+    private final Timer timer = Timer.of(() -> getName().toUpperCase());
 
     @Inject(method = "doGenerationWork", at = @At("HEAD"))
     public void onDoWorkHead(ServerWorld world, ChunkGenerator generator, TemplateManager templates, ServerWorldLightManager lightManager, Function<IChunk, CompletableFuture<Either<IChunk, ChunkHolder.IChunkLoadingError>>> p_223198_5_, List<IChunk> chunks, CallbackInfoReturnable<CompletableFuture<Either<IChunk, ChunkHolder.IChunkLoadingError>>> cir) {

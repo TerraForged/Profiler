@@ -13,6 +13,7 @@ public class Section implements Comparable<Section> {
     private static final int SAMPLE_RESET_POINT = 100_000;
 
     private final String name;
+    private final boolean root;
     private final AtomicLong time = new AtomicLong();
     private final AtomicLong average = new AtomicLong();
     private final AtomicInteger hits = new AtomicInteger();
@@ -22,7 +23,8 @@ public class Section implements Comparable<Section> {
     private final ThreadLocal<Instance> instance = ThreadLocal.withInitial(() -> new Instance(this));
 
     public Section(String name, Section parent) {
-        this.name = parent == null ? name : parent.getName() + "." + name;
+        this.root = parent == null;
+        this.name = root ? name : parent.getPath() + "/" + name;
         if (parent != null) {
             parent.children.add(this);
             Collections.sort(parent.children);
@@ -31,13 +33,12 @@ public class Section implements Comparable<Section> {
         }
     }
 
-    @Override
-    public int compareTo(Section o) {
-        return Long.compare(order, o.order);
-    }
-
     public String getName() {
         return name;
+    }
+
+    private String getPath() {
+        return getName().toLowerCase();
     }
 
     public Stream<Section> children() {
@@ -74,6 +75,11 @@ public class Section implements Comparable<Section> {
             return average;
         }
         return getAverage();
+    }
+
+    @Override
+    public int compareTo(Section o) {
+        return Long.compare(order, o.order);
     }
 
     protected void inc(long timeNanos) {

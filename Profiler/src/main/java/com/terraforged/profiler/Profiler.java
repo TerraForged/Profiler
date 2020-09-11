@@ -20,7 +20,14 @@ public class Profiler {
     private static final StringPool stringPool = new StringPool(4);
     private static final Map<String, Section> sections = new ConcurrentHashMap<>();
     private static final List<Section> roots = Collections.synchronizedList(new ArrayList<>());
-    private static final ThreadLocal<InstanceStack> stack = ThreadLocal.withInitial(() -> new InstanceStack(10));
+    private static final List<InstanceStack> stacks = Collections.synchronizedList(new ArrayList<>());
+    private static final ThreadLocal<InstanceStack> stack = ThreadLocal.withInitial(Profiler::createStack);
+
+    public static void reset() {
+        sections.clear();
+        roots.clear();
+        stacks.forEach(InstanceStack::clear);
+    }
 
     public static void attachLogger(Consumer<String> consumer) {
         messageSink.set(consumer);
@@ -39,6 +46,12 @@ public class Profiler {
 
     static void pop() {
         Profiler.stack.get().pop();
+    }
+
+    private static InstanceStack createStack() {
+        InstanceStack stack = new InstanceStack(16);
+        stacks.add(stack);
+        return stack;
     }
 
     private static long nanos() {

@@ -61,7 +61,7 @@ public class ProfilerFabric implements ModInitializer {
     private static <T, CT> String getName(CT configured, Function<CT, T> getter, Registry<T> typeRegistry, Registry<CT> configuredRegistry) {
         Identifier configuredName = configuredRegistry.getId(configured);
         if (configuredName != null) {
-            return configuredName.toString();
+            return toString(configuredName);
         }
 
         T t = getter.apply(configured);
@@ -71,9 +71,16 @@ public class ProfilerFabric implements ModInitializer {
 
         Identifier typeName = typeRegistry.getId(t);
         if (typeName != null) {
-            return typeName.toString();
+            return toString(typeName);
         }
 
         return null;
+    }
+
+    private static String toString(Identifier identifier) {
+        if (identifier.getNamespace().equals("minecraft")) {
+            return identifier.getPath();
+        }
+        return identifier.toString();
     }
 }

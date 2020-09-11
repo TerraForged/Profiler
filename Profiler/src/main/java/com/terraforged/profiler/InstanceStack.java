@@ -1,5 +1,6 @@
 package com.terraforged.profiler;
 
+import java.util.Arrays;
 import java.util.function.Function;
 
 class InstanceStack implements Function<String, Section> {
@@ -12,6 +13,10 @@ class InstanceStack implements Function<String, Section> {
     InstanceStack(int maxSize) {
         stack = new Instance[maxSize];
         max = maxSize - 1;
+    }
+
+    void clear() {
+        Arrays.fill(stack, null);
     }
 
     public void push(Section section, long timestamp) {
