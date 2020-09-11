@@ -48,6 +48,10 @@ public class Section implements Comparable<Section> {
         return instance.get();
     }
 
+    public int getSamples() {
+        return hits.get();
+    }
+
     public double getAverage() {
         double hits = this.hits.get();
         if (hits == 0) {

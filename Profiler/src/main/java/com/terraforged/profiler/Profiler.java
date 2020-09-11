@@ -17,6 +17,7 @@ public class Profiler {
     private static final AtomicLong TIMER = new AtomicLong();
     private static final long INTERVAL_NANOS = TimeUnit.SECONDS.toNanos(10);
 
+    private static final StringPool stringPool = new StringPool(4);
     private static final Map<String, Section> sections = new ConcurrentHashMap<>();
     private static final List<Section> roots = Collections.synchronizedList(new ArrayList<>());
     private static final ThreadLocal<InstanceStack> stack = ThreadLocal.withInitial(() -> new InstanceStack(10));
@@ -50,23 +51,54 @@ public class Profiler {
     }
 
     private static void print() {
-        StringBuilder sb = new StringBuilder(128);
-        sb.append("\n############################\n");
-        sb.append("TIMINGS REPORT\n");
-
-        double total = roots.stream().sorted()
-                .peek(root -> printSection(root, sb.append("# ")))
-                .mapToDouble(Section::getAverage)
-                .sum();
-
-        sb.append(String.format("Average: %.3fms Per Chunk\n", total / 1_000_000));
-
-        Profiler.messageSink.get().accept(sb.toString());
+        if (roots.size() > 3) {
+            Profiler.messageSink.get().accept(getReport());
+        }
     }
 
-    private static void printSection(Section section, StringBuilder stringBuilder) {
-        double average = section.getAverage() / 1_000_000;
-        stringBuilder.append(section.getName()).append(": ").append(String.format("%.3fms", average)).append('\n');
-        section.children().forEach(child -> printSection(child, stringBuilder.append(" - ")));
+    public static String getReport() {
+        try (StringPool.Resource resource = stringPool.retain()) {
+            final String title = "TIMINGS REPORT";
+            final int nameWidth = getWidestName() + 6;
+            final int pageWidth = nameWidth + 40;
+
+            StringBuilder sb = resource.get().append('\n');
+            StringPool.pad(sb, '#', pageWidth).append('\n');
+            StringPool.center(sb, title, pageWidth).append('\n');
+            StringPool.pad(sb, '#', pageWidth).append('\n');
+
+            double total = roots.stream().sorted()
+                    .peek(root -> printSection(root, sb.append("- "), nameWidth, 2))
+                    .mapToDouble(Section::getAverage)
+                    .sum();
+
+            String summary = String.format("AVERAGE: %.3fms PER CHUNK\n", nanoToMillis(total));
+            StringPool.center(sb, summary, pageWidth).append('\n');
+            StringPool.pad(sb, '#', pageWidth).append('\n');
+
+            return sb.toString();
+        }
+    }
+
+    private static int getWidestName() {
+        return sections.values().stream().map(Section::getName).mapToInt(String::length).max().orElse(0);
+    }
+
+    private static void printSection(Section section, StringBuilder stringBuilder, int widest, int indent) {
+        String prefix = indent == 2 ? "- " : "  ";
+
+        String name = section.getName();
+        stringBuilder.append(name);
+        StringPool.pad(stringBuilder, ' ', name.length() + indent, widest);
+
+        String average = String.format("%.03fms", nanoToMillis(section.getAverage()));
+        StringPool.pad(stringBuilder, ' ', average.length(), 9).append(prefix).append("Average: ").append(average);
+        StringPool.pad(stringBuilder, ' ', 4).append(prefix).append("Samples: ").append(section.getSamples()).append('\n');
+
+        section.children().forEach(child -> printSection(child, stringBuilder.append("   "), widest, 3));
+    }
+
+    private static double nanoToMillis(double nanos) {
+        return nanos / 1_000_000;
     }
 }
