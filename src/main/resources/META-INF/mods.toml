@@ -1,0 +1,10 @@
+modLoader="javafml"
+loaderVersion="[31,)"
+license="license.txt"
+issueTrackerURL="https://github.com/TerraForged/PreGenForge/issues"
+[[mods]]
+    displayName="ChunkProfiler"
+    modId="profiler"
+    version="@version@"
+    authors="dags"
+    description="A ChunkGenerator profiler"

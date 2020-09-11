@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_8",
+  "package": "com.terraforged.profiler.mixin",
+  "refmap": "mixin.profiler.refmap.json",
+  "mixins": [
+    "MixinChunkStatus",
+    "MixinConfiguredFeature",
+    "MixinConfiguredSurface",
+    "MixinConfiguredCarver",
+    "MixinStructureStart"
+  ]
+}
