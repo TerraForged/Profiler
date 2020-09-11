@@ -9,12 +9,12 @@ Goto '[Actions](https://github.com/TerraForged/Profiler/actions)' \>\> Select th
 https://github.com/TerraForged/Profiler/actions
 
 #### About
-This mod injects a series profiling timers into various levels of world-gen code in  
+This mod injects a series of profiling timers into various levels of world-gen code in  
 order to build up a (rough) idea of how long each part of chunk generation takes to  
 execute.
 
 This may or may not prove to be a useful tool for profiling world-gen and identifying  
-poorly performing modded additions to generation.
+poorly performing additions to world generation.
 
 Notes:
 - Timing data is spewed periodically into the logs.
