@@ -13,7 +13,7 @@ This mod injects a series profiling timers into various levels of world-gen code
 order to build up a (rough) idea of how long each part of chunk generation takes to  
 execute.
 
-This may or may not prove to be a useful tool for profiling world-gen and tracing  
+This may or may not prove to be a useful tool for profiling world-gen and identifying  
 poorly performing modded additions to generation.
 
 Notes:
