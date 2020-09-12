@@ -89,7 +89,6 @@ public class Profiler {
 
             double total = roots.stream()
                     .peek(root -> printSection(root, sb.append("- "), nameWidth, 2))
-                    .peek(root -> root.getName())
                     .mapToDouble(Section::getAverage)
                     .sum();
 
