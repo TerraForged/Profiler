@@ -28,14 +28,14 @@ public class Section implements Comparable<Section> {
 
     public Section(String name, long ordinal) {
         this.root = true;
-        this.name = name;
         this.order = ordinal;
+        this.name = name.toUpperCase();
     }
 
     public Section(String name, Section parent) {
         this.root = parent == null;
         this.order = System.currentTimeMillis();
-        this.name = root ? name : parent.getPath() + "/" + name;
+        this.name = root ? name.toUpperCase() : parent.getPath() + "/" + name;
         if (parent != null) {
             parent.children.add(this);
             Collections.sort(parent.children);

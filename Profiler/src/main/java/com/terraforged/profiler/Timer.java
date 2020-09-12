@@ -44,11 +44,6 @@ public class Timer {
         try {
             if (name == null) {
                 name = nameSupplier.get();
-
-                // presence of an ordinal indicates this is a root section
-                if (ordinal.getAsInt() != -1) {
-                    name = name.toUpperCase();
-                }
             }
             return name;
         } finally {
