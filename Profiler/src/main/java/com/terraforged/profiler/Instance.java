@@ -2,16 +2,16 @@ package com.terraforged.profiler;
 
 class Instance implements AutoCloseable {
 
-    private final Section profile;
+    private final Section section;
 
     private long time;
 
     public Instance(Section profile) {
-        this.profile = profile;
+        this.section = profile;
     }
 
-    public Section getProfile() {
-        return profile;
+    public Section getSection() {
+        return section;
     }
 
     protected Instance punchIn(long timestamp) {
@@ -21,7 +21,7 @@ class Instance implements AutoCloseable {
 
     protected Instance punchOut(long timestamp) {
         long duration = timestamp - time;
-        profile.inc(duration);
+        section.inc(duration);
         return this;
     }
 

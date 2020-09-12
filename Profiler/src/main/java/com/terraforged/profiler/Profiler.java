@@ -27,6 +27,7 @@ public class Profiler {
         sections.clear();
         roots.clear();
         stacks.forEach(InstanceStack::clear);
+        TIMER.set(System.nanoTime());
     }
 
     public static void attachLogger(Consumer<String> consumer) {
@@ -66,6 +67,8 @@ public class Profiler {
         long time = TIMER.get();
         if (now - time > INTERVAL_NANOS && TIMER.compareAndSet(time, now)) {
             print();
+            // print might take a while get time again
+            now = System.nanoTime();
         }
         return now;
     }

@@ -3,18 +3,22 @@ package com.terraforged.profiler;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.LongBinaryOperator;
 import java.util.stream.Stream;
 
 public class Section implements Comparable<Section> {
 
     private static final int SAMPLE_RESET_POINT = 100_000;
+    private static final LongBinaryOperator MIN = Math::min;
+    private static final LongBinaryOperator MAX = Math::min;
 
     private final String name;
     private final boolean root;
     private final AtomicLong time = new AtomicLong();
+    private final AtomicLong min = new AtomicLong();
+    private final AtomicLong max = new AtomicLong();
     private final AtomicLong average = new AtomicLong();
     private final AtomicInteger hits = new AtomicInteger();
 
@@ -60,6 +64,18 @@ public class Section implements Comparable<Section> {
         return instance.get();
     }
 
+    public long getMin() {
+        return min.get();
+    }
+
+    public long getMax() {
+        return max.get();
+    }
+
+    public long getTime() {
+        return time.get();
+    }
+
     public int getSamples() {
         return hits.get();
     }
@@ -70,22 +86,6 @@ public class Section implements Comparable<Section> {
             return 0.0;
         }
         return time.get() / hits;
-    }
-
-    public long getAverage(TimeUnit unit) {
-        int hits = this.hits.get();
-        if (hits == 0) {
-            return 0L;
-        }
-        return unit.convert(time.get() / hits, TimeUnit.NANOSECONDS);
-    }
-
-    public double getRunningAverage() {
-        double average = this.average.get();
-        if (average > 0) {
-            return average;
-        }
-        return getAverage();
     }
 
     @Override
@@ -105,5 +105,8 @@ public class Section implements Comparable<Section> {
         } else {
             this.time.addAndGet(timeNanos);
         }
+
+        min.accumulateAndGet(timeNanos, MIN);
+        max.accumulateAndGet(timeNanos, MAX);
     }
 }

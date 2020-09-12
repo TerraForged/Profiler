@@ -8,9 +8,11 @@ import net.minecraft.world.gen.carver.WorldCarver;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.feature.structure.Structure;
 import net.minecraft.world.gen.surfacebuilders.ConfiguredSurfaceBuilder;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -26,6 +28,11 @@ public class ProfilerForge {
     public static void init(FMLCommonSetupEvent event) {
         LOG.info("Setting up chunk-gen profiler");
         Profiler.attachLogger(LOG::debug);
+
+        MinecraftForge.EVENT_BUS.addGenericListener(FMLServerStartingEvent.class, e -> {
+            LOG.info("Resetting profiler");
+            Profiler.reset();
+        });
     }
 
     public static String getSurfaceName(Object object) {

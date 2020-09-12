@@ -33,8 +33,6 @@ public abstract class MixinChunkStatus {
     @Inject(method = "runGenerationTask", at = @At("HEAD"))
     public void onDoWorkHead(ServerWorld world, ChunkGenerator chunkGenerator, StructureManager structureManager, ServerLightingProvider lightingProvider, Function<Chunk, CompletableFuture<Either<Chunk, ChunkHolder.Unloaded>>> function, List<Chunk> chunks, CallbackInfoReturnable<CompletableFuture<Either<Chunk, ChunkHolder.Unloaded>>> cir) {
         timer.punchIn();
-
-
     }
 
     @Inject(method = "runGenerationTask", at = @At("RETURN"))

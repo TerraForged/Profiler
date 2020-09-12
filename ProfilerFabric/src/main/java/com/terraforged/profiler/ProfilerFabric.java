@@ -2,6 +2,8 @@ package com.terraforged.profiler;
 
 
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.BuiltinRegistries;
 import net.minecraft.util.registry.Registry;
@@ -15,7 +17,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.function.Function;
 
-public class ProfilerFabric implements ModInitializer {
+public class ProfilerFabric implements ModInitializer, ServerLifecycleEvents.ServerStarting {
 
     private static final Logger LOG = LogManager.getLogger();
 
@@ -23,6 +25,13 @@ public class ProfilerFabric implements ModInitializer {
     public void onInitialize() {
         LOG.info("Setting up chunk-gen profiler");
         Profiler.attachLogger(LOG::info);
+        ServerLifecycleEvents.SERVER_STARTING.register(this);
+    }
+
+    @Override
+    public void onServerStarting(MinecraftServer minecraftServer) {
+        LOG.info("Resetting profiler");
+        Profiler.reset();
     }
 
     public static String getSurfaceName(Object object) {

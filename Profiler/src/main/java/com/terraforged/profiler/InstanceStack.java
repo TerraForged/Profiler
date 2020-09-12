@@ -36,7 +36,7 @@ class InstanceStack implements Function<String, Section> {
     public Section apply(String s) {
         if (pointer > -1) {
             Instance instance = stack[pointer];
-            return new Section(s, instance.getProfile());
+            return new Section(s, instance.getSection());
         }
         return new Section(s, null);
     }
