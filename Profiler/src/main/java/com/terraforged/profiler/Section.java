@@ -18,12 +18,19 @@ public class Section implements Comparable<Section> {
     private final AtomicLong average = new AtomicLong();
     private final AtomicInteger hits = new AtomicInteger();
 
-    private final long order = System.currentTimeMillis();
+    private final long order;
     private final List<Section> children = Collections.synchronizedList(new ArrayList<>());
     private final ThreadLocal<Instance> instance = ThreadLocal.withInitial(() -> new Instance(this));
 
+    public Section(String name, long ordinal) {
+        this.root = true;
+        this.name = name;
+        this.order = ordinal;
+    }
+
     public Section(String name, Section parent) {
         this.root = parent == null;
+        this.order = System.currentTimeMillis();
         this.name = root ? name : parent.getPath() + "/" + name;
         if (parent != null) {
             parent.children.add(this);
@@ -31,6 +38,10 @@ public class Section implements Comparable<Section> {
         } else {
             Profiler.addRoot(this);
         }
+    }
+
+    public boolean isRoot() {
+        return root;
     }
 
     public String getName() {

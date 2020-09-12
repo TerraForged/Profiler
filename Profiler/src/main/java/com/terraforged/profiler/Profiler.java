@@ -33,9 +33,16 @@ public class Profiler {
         messageSink.set(consumer);
     }
 
-    static void addRoot(Section section) {
+    static Section addRoot(Section section) {
         roots.add(section);
         Collections.sort(roots);
+        return section;
+    }
+
+    static void push(String section, int ordinal) {
+        Section root = sections.computeIfAbsent(section, s -> addRoot(new Section(s, ordinal)));
+        InstanceStack stack = Profiler.stack.get();
+        stack.push(root, nanos());
     }
 
     static void push(String section) {
@@ -80,8 +87,9 @@ public class Profiler {
             StringPool.center(sb, title, pageWidth).append('\n');
             StringPool.pad(sb, '#', pageWidth).append('\n');
 
-            double total = roots.stream().sorted()
+            double total = roots.stream()
                     .peek(root -> printSection(root, sb.append("- "), nameWidth, 2))
+                    .peek(root -> root.getName())
                     .mapToDouble(Section::getAverage)
                     .sum();
 
